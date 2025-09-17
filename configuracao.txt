@@ -1,0 +1,9 @@
+TFS = 0
+VAM = 6000
+PCT_AR = 10
+BITOLA = 25
+SENTIDO = Direto
+TAXA_IMG = 0
+SAIDA_DIR =
+FORMATO = ambos
+BASE_IMG = assets/hidrometro_base.png
