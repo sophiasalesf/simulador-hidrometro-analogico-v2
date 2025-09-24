@@ -20,7 +20,7 @@ public:
     bool getArPresente() const;
     SentidoFluxo getSentido() const;
 
-private:
+protected:
     double bitola;
     double vazao;
     SentidoFluxo sentido;
