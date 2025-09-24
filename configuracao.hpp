@@ -33,7 +33,7 @@ public:
     void setFormato(const string& f);
     void setBaseImg(const string& path);
 
-private:
+protected:
     double tfs;
     double vam;
     double pctAr;
