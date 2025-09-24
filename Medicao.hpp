@@ -18,7 +18,7 @@ public:
     double getTotalM3() const;                
     std::array<int,6> getDigitos() const;      
 
-private:
+protected:
     unsigned long long totalDecilitros; 
     double residualLitros;              
 };
