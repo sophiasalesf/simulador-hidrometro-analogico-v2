@@ -16,7 +16,7 @@ public:
     Saida(const std::string& matricula);
     void salvarMedicao(int m3, const Configuracao& conf, const Hidrometro& h);
 
-private:
+protected:
     std::string matricula;
     std::string pastaBase;
     void garantirPasta();
