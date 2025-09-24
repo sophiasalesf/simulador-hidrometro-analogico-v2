@@ -22,7 +22,7 @@ public:
 
     std::string apresentacaoMedicao() const;
 
-private:
+protected:
     Entrada  input_;
     Medicao  medicao_;
 };
