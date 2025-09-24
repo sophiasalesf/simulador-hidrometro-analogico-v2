@@ -21,7 +21,7 @@ public:
     void executar();
     void executarIninterrupto();
 
-private:
+protected:
     double tempoTotalSeg;
     double dtSeg;
     Hidrometro hidrometro;
