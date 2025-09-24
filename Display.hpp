@@ -17,7 +17,7 @@ public:
 
     const std::vector<unsigned char>& renderEstado(const Hidrometro& h, int& w, int& hgt, int& comp);
 
-private:
+protected:
     std::vector<unsigned char> buffer;   
     std::vector<unsigned char> base;     
     int baseW, baseH;  
