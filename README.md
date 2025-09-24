@@ -2,6 +2,9 @@
 
 O Simulador de Hidrômetro Analógico (SHA) é um software desenvolvido em C++ que reproduz o funcionamento de um hidrômetro de água em ambiente virtual. Ele foi criado para auxiliar em testes e experimentos sem a necessidade de um equipamento físico.
 
+## Ferramenta utilizada para o Diagrama de Classes — SHA 2.0
+- O diagrama de classes do SHA 2.0 foi produzido utilizando a ferramenta **draw.io (diagrams.net)**.
+
 ## Funcionalidades
 - Simulação contínua do fluxo de água em tempo discreto ou de forma ininterrupta.
 - Registro automático de medições em arquivos de imagem (.jpeg), organizados por pasta.
