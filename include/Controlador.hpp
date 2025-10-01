@@ -2,6 +2,7 @@
 #define CONTROLADOR_HPP
 
 #include <memory>
+#include <vector>
 #include "Configuracao.hpp"
 #include "Hidrometro.hpp"
 #include "Entrada.hpp"
@@ -18,16 +19,19 @@ public:
     void configurarEntrada(const Entrada& e);
     void configurarComConfiguracao(const Configuracao& conf);
 
+    bool adicionarHidrometro(const Configuracao& conf);
+
     void executar();
     void executarIninterrupto();
 
 protected:
     double tempoTotalSeg;
     double dtSeg;
-    Hidrometro hidrometro;
-    Configuracao conf_;
-    std::unique_ptr<Saida> saida_; 
-    int lastSavedM3_;
+    int maxHidrometros;
+    std::vector<Hidrometro> hidrometros_;
+    std::vector<Configuracao> configs_;
+    std::vector<std::unique_ptr<Saida>> saidas_; 
+    std::vector<int> lastSavedM3s_;
 };
 }
 

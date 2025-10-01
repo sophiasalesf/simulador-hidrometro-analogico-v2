@@ -4,25 +4,46 @@
 #include <iomanip>
 #include <sys/stat.h>
 #include <direct.h>
+#include <iostream>
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
 namespace hidrometro
 {
-    Saida::Saida(const std::string& matricula_)
-        : matricula(matricula_)
+    Saida::Saida(const std::string& matricula_, int indiceHidrometro)
+        : matricula(matricula_), indiceHidrometro(indiceHidrometro)
     {
-        pastaBase = "Medicoes_" + matricula;
+        // pastaBase = "Medicoes_" + matricula;
+        pastaBase = "Medicoes_" + matricula_ + "/hidrometro" + std::to_string(this->indiceHidrometro);
         garantirPasta();
     }
 
     void Saida::garantirPasta()
     {
-        struct stat info;
-        if (stat(pastaBase.c_str(), &info) != 0)
+        // Define o caminho da pasta principal
+        std::string pastaPrincipal = "Medicoes_" + this->matricula;
+
+        // Tenta criar a pasta principal
+        if (_mkdir(pastaPrincipal.c_str()) != 0 && errno != EEXIST) 
         {
-            _mkdir(pastaBase.c_str());
+            // Constrói uma mensagem de erro detalhada
+            std::stringstream msg;
+            msg << "Falha ao criar a pasta principal '" << pastaPrincipal << "': " << strerror(errno);
+            
+            // Lança a exceção com a mensagem
+            throw std::runtime_error(msg.str());
+        }
+
+        // Tenta criar a subpasta
+        if (_mkdir(this->pastaBase.c_str()) != 0 && errno != EEXIST) 
+        {
+            // Constrói uma mensagem de erro detalhada
+            std::stringstream msg;
+            msg << "Falha ao criar a subpasta '" << this->pastaBase << "': " << strerror(errno);
+
+            // Lança a exceção com a mensagem
+            throw std::runtime_error(msg.str());
         }
     }
 

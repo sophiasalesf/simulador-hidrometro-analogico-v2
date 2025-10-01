@@ -31,7 +31,7 @@ O Simulador de Hidrômetro Analógico (SHA) é um software desenvolvido em C++ q
 - No PowerShell (Windows, usando MinGW):
 ```sh
 mkdir bin 2>$null
-g++ -std=c++14 -I . .\Entrada.cpp .\Medicao.cpp .\Hidrometro.cpp .\Display.cpp .\Controlador.cpp .\Saida.cpp .\main.cpp -o .\bin\simulador.exe
+g++ -std=c++17 -I include src/*.cpp -o ./bin/simulador.exe
 .\bin\simulador.exe
 ```
 2. Ajuste os parâmetros no arquivo `configuracao.txt`.
