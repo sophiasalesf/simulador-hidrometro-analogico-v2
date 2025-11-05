@@ -1,5 +1,5 @@
 TFS = 10
-VAM = 6000
+VAM = 5000
 PCT_AR = 10
 BITOLA = 25
 SENTIDO = Direto

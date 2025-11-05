@@ -9,10 +9,8 @@ using Clock = std::chrono::steady_clock;
 using std::cout;
 using std::endl;
 
-// Construtor: Inicializa variáveis globais da simulação.
-// Os vetores já começam vazios por padrão.
 Controlador::Controlador()
-    : tempoTotalSeg(0.0), dtSeg(0.1), maxHidrometros(5)
+    : tempoTotalSeg(0.0), dtSeg(0.1), maxHidrometros(5), gerarImagem(true)
 {}
 
 // Configura o tempo global da simulação, que se aplica a todos os hidrômetros.
@@ -22,11 +20,40 @@ void Controlador::configurarTempo(double tempoTotalSeg_, double dtSeg_)
     dtSeg = (dtSeg_ > 0.0 ? dtSeg_ : 0.1);
 }
 
-bool Controlador::adicionarHidrometro(const Configuracao& conf)
-{
+bool Controlador::setPasso(double dtSeg) {
+    if (dtSeg < 0)
+        return false;
+
+    this->dtSeg = dtSeg;
+    return true;
+}
+
+bool Controlador::setMaxHidrometros(int maxHidrometros) {
+    if (maxHidrometros < 0 || maxHidrometros > 5)
+        return false;
+
+    this->maxHidrometros = maxHidrometros;
+    return true;
+}
+
+void Controlador::setGeracaoImagem(bool config) {
+    this->gerarImagem = config;
+}
+
+bool Controlador::setVazaoHidrometro(double vazao, int pos) {
+    if (vazao < 0 || pos < 0 || pos >= hidrometros_.size())
+        return false;
+
+    Entrada e = hidrometros_[pos].getEntrada();
+    e.entradaFluxo(e.getBitola(), vazao, e.getSentido());
+    hidrometros_[pos].setEntrada(e);
+    return true;
+}
+
+bool Controlador::adicionarHidrometro(const Configuracao& conf) {
     if (hidrometros_.size() >= this->maxHidrometros)
     {
-        cout << "[Controlador] Erro: Limite de " << this->maxHidrometros << " hidrômetros atingido." << endl;
+        cout << "[Controlador] Erro: Limite de " << this->maxHidrometros << " hidrometros atingido." << endl;
         return false;
     }
 
@@ -50,12 +77,21 @@ bool Controlador::adicionarHidrometro(const Configuracao& conf)
     // Adiciona o estado inicial de salvamento para este hidrômetro
     lastSavedM3s_.push_back(-1);
 
-    cout << "[Controlador] Hidrômetro " << hidrometros_.size() << " adicionado com a configuração: " 
-         << conf.getSaidaDir() << endl;
-
     return true;
 }
 
+bool Controlador::removerHidrometro(int pos) {
+    if (pos < 0 || pos >= this->hidrometros_.size()) {
+        cout << "[Controlador] Erro: Nao existe hidrometro na posicao " << pos << '.' << endl;
+        return false;
+    }
+
+    hidrometros_.erase(hidrometros_.begin() + pos);
+    configs_.erase(configs_.begin() + pos);
+    saidas_.erase(saidas_.begin() + pos);
+    lastSavedM3s_.erase(lastSavedM3s_.begin() + pos);
+    return true;
+}
 
 void Controlador::executar()
 {
@@ -89,7 +125,7 @@ void Controlador::executar()
                 hidrometros_[i].medir(passo);
 
                 int m3Atual = static_cast<int>(hidrometros_[i].getMedicao().getTotalLitros() / 1000);
-                if (saidas_[i] && m3Atual > lastSavedM3s_[i])
+                if (saidas_[i] && m3Atual > lastSavedM3s_[i] && gerarImagem)
                 {
                     saidas_[i]->salvarMedicao(m3Atual, configs_[i], hidrometros_[i]);
                     lastSavedM3s_[i] = m3Atual;
@@ -135,7 +171,7 @@ void Controlador::executarIninterrupto()
                 hidrometros_[i].medir(passo);
                 
                 int m3Atual = static_cast<int>(hidrometros_[i].getMedicao().getTotalLitros() / 1000);
-                if (saidas_[i] && m3Atual > lastSavedM3s_[i])
+                if (saidas_[i] && m3Atual > lastSavedM3s_[i] && this->gerarImagem)
                 {
                     saidas_[i]->salvarMedicao(m3Atual, configs_[i], hidrometros_[i]);
                     lastSavedM3s_[i] = m3Atual;

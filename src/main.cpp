@@ -1,102 +1,103 @@
-// #include <iostream>
-// #include "Configuracao.hpp"
-// #include "Controlador.hpp"
-
-// using namespace hidrometro;
-
-// int main() 
-// {
-//     ParseConfigResult res = carregarConfiguracao("configuracao.txt");
-//     if (!res.sucesso)
-//     {
-//         std::cerr << "Erro ao carregar configuração: " << res.erro << std::endl;
-//         return 1;
-//     }
-
-//     Configuracao conf = res.conf;
-
-//     Controlador controlador;
-//     controlador.configurarComConfiguracao(conf);
-
-//     if (conf.getTfs() > 0.0)
-//     {
-//         controlador.executar();
-//     }
-//     else
-//     {
-//         controlador.executarIninterrupto();
-//     }
-
-//     return 0;
-// }
-
 #include <iostream>
 #include <vector>
 #include <string>
+#include <cctype>
+#include <cstdlib>
+#include <algorithm>
 #include "Controlador.hpp"
 #include "Configuracao.hpp"
+#include "SimuladorHidrometroFacade.hpp"
 
 // Usar o namespace para simplificar
 using namespace hidrometro;
+using namespace std;
 
-int main() 
-{
-    // Defina a lista de arquivos de configuração aqui.
-    // Adicione ou remova linhas para mudar a simulação.
-    std::vector<std::string> arquivosDeConfig = {
-        "configuracoes/configuracao1.txt",
-        "configuracoes/configuracao2.txt",
-        "configuracoes/configuracao3.txt",
-        "configuracoes/configuracao4.txt",
-        "configuracoes/configuracao5.txt"
-    };
+class Cliente {
+    public:
+        static int main() {
+            double tmp_at, tmp_exe;
+            
+            cout << "Configurando o simulador..." << endl;
+            cout << "Digite o tempo de execucao e o tempo de atualizacao do simulador (em segundos): ";
+            cin >> tmp_exe >> tmp_at;
 
-    if (arquivosDeConfig.empty()) {
-        std::cerr << "Erro: Nenhum arquivo de configuração definido na lista em main.cpp." << std::endl;
-        return 1;
-    }
+            SimuladorHidrometroFacade& shf = SimuladorHidrometroFacade::getInstancia();
+            shf.configSimuladorSHA(tmp_exe, tmp_at);
+            
+            cout << "Simulador configurado com sucesso!" << endl;
+            
+            int opc;
 
-    // 1. Cria a instância do controlador
-    Controlador controlador;
-    double tempoSimulacaoGlobal = 0.0;
+            while (opc != 5) {
+                cout << "Funcionalidades:" << endl << "[1] criaSHA" << endl << 
+                "[2] finalizaSHA" << endl << "[3] modificaVazaoSHA" << endl << "[4] habilitaGeracaoImagemSHA" << 
+                endl << "[5] executarSimulador" << endl << endl;
+                cout << "Digite a sua opcao: ";
+                cin >> opc;
+                
+                int indice, qnt;
+                double nova_vazao;
+                std::string s;
 
-    // 2. Loop para carregar cada arquivo da lista
-    bool primeiroArquivo = true;
-    for (const std::string& caminhoArquivo : arquivosDeConfig) 
-    {
-        std::cout << "[Main] Carregando arquivo: " << caminhoArquivo << std::endl;
+                switch (opc) {
+                    case 1:
+                        cout << "Digite quantos simuladores quer instanciar (Total maximo de 5): ";
+                        cin >> qnt;
 
-        ParseConfigResult res = carregarConfiguracao(caminhoArquivo);
-        if (!res.sucesso)
-        {
-            std::cerr << "Erro ao carregar '" << caminhoArquivo << "': " << res.erro << std::endl;
-            continue; // Pula para o próximo arquivo
+                        for (int i = 0; i < qnt; i++)
+                            shf.criaSHA();
+                        break;
+                    
+                    case 2:
+                        cout << "Digite o indice da instancia que quer finalizar: ";
+                        cin >> indice;
+                        shf.finalizaSHA(indice);
+                        break;
+                    
+                    case 3:
+                        cout << "Digite o valor da vazao e o indice do hidrometro: ";
+                        cin >> nova_vazao >> indice;
+                        shf.modificaVazaoSHA(nova_vazao, indice);
+                        break;
+
+                    case 4:
+                        cout << "[y] Habilitar" << endl;
+                        cout << "[n] Desabilitar" << endl;
+                        cout << "Digite sua opcao: ";
+                        cin >> s;
+                        cout << s;
+                        s.erase(std::remove_if(s.begin(), s.end(), ::isspace), s.end());
+                        std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+
+                        if (s == "y")
+                            shf.habilitaGeracaoImagemSHA(true);
+                        else if (s == "n")
+                            shf.habilitaGeracaoImagemSHA(false);
+                        else
+                            cout << "Digite uma opcao valida!" << endl;
+                        break;
+                        
+                    case 5:
+                        cout << "Iniciando simulador..." << endl;
+                        shf.executar();
+                        break;
+
+                    default:
+                        break;
+                    
+
+                    }
+                
+                if (opc != 5) {
+                    std::this_thread::sleep_for(chrono::seconds(2));
+                    system("clear");
+                }
+            }
+
+            return 0;
         }
+};
 
-        // Usaremos o tempo de simulação (TFS) do PRIMEIRO arquivo como o global
-        if (primeiroArquivo) {
-            tempoSimulacaoGlobal = res.conf.getTfs();
-            controlador.configurarTempo(tempoSimulacaoGlobal, 0.1);
-            primeiroArquivo = false;
-        }
-
-        // Adiciona o hidrômetro configurado ao controlador
-        if (!controlador.adicionarHidrometro(res.conf)) {
-             std::cerr << "Aviso: Limite de hidrômetros atingido. Ignorando " << caminhoArquivo << std::endl;
-        }
-    }
-
-    // 3. Decide qual modo de execução usar com base no tempo global
-    std::cout << "\n[Main] Todas as configurações foram carregadas. Iniciando simulação..." << std::endl;
-    if (tempoSimulacaoGlobal > 0.0)
-    {
-        controlador.executar();
-    }
-    else
-    {
-        controlador.executarIninterrupto();
-    }
-
-    std::cout << "[Main] Simulação finalizada." << std::endl;
-    return 0;
+int main() {
+   Cliente::main(); 
 }
