@@ -45,4 +45,4 @@ g++ -std=c++14 -I . .\Entrada.cpp .\Medicao.cpp .\Hidrometro.cpp .\Display.cpp .
 <img width="640" height="360" alt="image" src="https://github.com/user-attachments/assets/4b8ad2a6-15d5-4705-b1a2-3594d2a96cec" />
 
 ## Desenvolvedora
-Sophia Sales (IFPB - Engenharia de Computação) (https://github.com/Sophia7b)  
+Sophia Sales (IFPB - Engenharia de Computação) (https://github.com/sophiasalesf)  
